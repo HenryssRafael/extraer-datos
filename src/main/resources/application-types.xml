@@ -1,0 +1,39 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<types:mule xmlns:types="http://www.mulesoft.org/schema/mule/types">
+  <types:catalog>
+    <types:type name="autorizacionComprobante" format="xml">
+      <types:example format="xml" element="{http://ec.gob.sri.ws.autorizacion}autorizacionComprobante" location="examples/request-1.xml"/>
+    </types:type>
+    <types:type name="autorizacionComprobanteResponse" format="xml">
+      <types:example format="xml" element="{http://ec.gob.sri.ws.autorizacion}autorizacionComprobanteResponse" location="examples/response.xml"/>
+    </types:type>
+    <types:type name="plain" format="java">
+      <types:shape format="raml"><![CDATA[#%RAML 1.0 DataType
+type: string]]></types:shape>
+    </types:type>
+    <types:type name="factura" format="xml">
+      <types:example format="xml" element="factura" location="examples/factura.xml"/>
+    </types:type>
+    <types:type name="factxsd" format="xml">
+      <types:shape format="xml-schema" element="factura" location="schemas/factura_V1.0.0.xsd"/>
+    </types:type>
+  </types:catalog>
+  <types:enrichment select="#a788b42d-9737-4a8d-9394-7c551cf7a3c4">
+    <types:processor-declaration>
+      <types:output-event>
+        <types:message>
+          <types:payload type="autorizacionComprobante"/>
+        </types:message>
+      </types:output-event>
+    </types:processor-declaration>
+  </types:enrichment>
+  <types:enrichment select="#3562e0c0-733f-4055-b5d2-e947fe2d33be">
+    <types:processor-declaration>
+      <types:output-event>
+        <types:message>
+          <types:payload type="factxsd"/>
+        </types:message>
+      </types:output-event>
+    </types:processor-declaration>
+  </types:enrichment>
+</types:mule>

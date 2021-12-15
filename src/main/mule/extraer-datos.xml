@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns:jms="http://www.mulesoft.org/schema/mule/jms"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:wsc="http://www.mulesoft.org/schema/mule/wsc" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/wsc http://www.mulesoft.org/schema/mule/wsc/current/mule-wsc.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/jms http://www.mulesoft.org/schema/mule/jms/current/mule-jms.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="d107b3a1-de45-4173-a73c-267407bf199b" basePath="unir">
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<wsc:config name="Web_Service_Consumer_Config_SRI" doc:name="Web Service Consumer Config" doc:id="0307149b-9925-40c5-9237-dcc98b539813" >
+		<wsc:connection wsdlLocation="https://cel.sri.gob.ec/comprobantes-electronicos-ws/AutorizacionComprobantesOffline?wsdl" service="AutorizacionComprobantesOfflineService" port="AutorizacionComprobantesOfflinePort" address="https://cel.sri.gob.ec/comprobantes-electronicos-ws/AutorizacionComprobantesOffline" />
+	</wsc:config>
+	<jms:config name="JMS_Config" doc:name="JMS Config" doc:id="eecc6590-08f0-44b5-9a5d-212d98e220fb" >
+		<jms:active-mq-connection username="admin" password="admin" >
+			<jms:factory-configuration brokerUrl="tcp://localhost:61616" />
+		</jms:active-mq-connection>
+	</jms:config>
+	<db:config name="Database_Config" doc:name="Database Config" doc:id="9f59d909-165b-41dd-8535-574d9c18cd98" >
+		<db:generic-connection url="jdbc:postgresql://localhost:5432/tfmdocuments" driverClassName="org.postgresql.Driver" user="postgres" password="1234" />
+	</db:config>
+	<flow name="extraer-datos-desde-sri-por-id-documento" doc:id="88aadedb-593f-4978-9b80-c5b94b32d2a2" >
+		<http:listener doc:name="Leer Datos" doc:id="a2988347-8493-4057-8fef-d221547a302f" config-ref="HTTP_Listener_config" path="/extraer" outputMimeType="application/json">
+			<http:response >
+				<http:body ><![CDATA[#[output application/xml ---
+payload.body]]]></http:body>
+			</http:response>
+		</http:listener>
+		<logger level="INFO" doc:name="Logger" doc:id="b409981c-5475-42fd-9266-933bee8feb2f" message='#[attributes.queryParams["id"]]]'/>
+		<ee:transform doc:name="Transform Message" doc:id="a788b42d-9737-4a8d-9394-7c551cf7a3c4">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/xml
+ns ns0 http://ec.gob.sri.ws.autorizacion
+---
+{
+	ns0#autorizacionComprobante: {
+		claveAccesoComprobante: attributes.queryParams.id as String
+	}
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<wsc:consume operation="autorizacionComprobante" doc:name="Consumer SRI" doc:id="d3440517-8745-46a6-b816-c62d3f696beb" config-ref="Web_Service_Consumer_Config_SRI">
+		</wsc:consume>
+		<set-variable value="#[%dw 2.0&#10;ns ns0 http://ec.gob.sri.ws.autorizacion&#10;---&#10;payload.body.ns0#autorizacionComprobanteResponse.RespuestaAutorizacionComprobante.numeroComprobantes]" doc:name="numeroComprobantes" doc:id="7dd7487a-6d7b-4a00-a579-a8f433633842" variableName="numeroComprobantes"/>
+		<logger level="INFO" doc:name="Logger" doc:id="06775f3f-2484-46dc-8968-13afa70f8add" message="#[vars.numeroComprobantes]"/>
+		<choice doc:name="Choice" doc:id="3d120a7f-efa9-4c31-867c-dfb49a025eef" >
+			<when expression="#[vars.numeroComprobantes == null or vars.numeroComprobantes == '0']">
+				<ee:transform doc:name="Transform Message" doc:id="c6bfb8aa-fd2b-4593-a33f-fbf151727795" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/xml
+---
+body: {
+invalido:{
+    mensaje:'Sin datos para mostrar'
+}	
+}
+]]></ee:set-payload>
+						<ee:set-attributes ><![CDATA[%dw 2.0
+output application/java
+---
+{
+}]]></ee:set-attributes>
+					</ee:message>
+				</ee:transform>
+				<set-payload value="#[payload]" doc:name="Set Payload" doc:id="00faa17a-d9f1-421e-b78e-1830d71923e4" />
+			</when>
+			<otherwise>
+				<jms:publish doc:name="Publish" doc:id="69c3bb8b-2f5b-4ec4-99b2-eee95ee09500" config-ref="JMS_Config" destination="unir.tfm.documents">
+					<jms:message >
+						<jms:body ><![CDATA[#[%dw 2.0
+ns ns0 http://ec.gob.sri.ws.autorizacion
+---
+payload.body.ns0#autorizacionComprobanteResponse.RespuestaAutorizacionComprobante.autorizaciones[0].comprobante]]]></jms:body>
+					</jms:message>
+				</jms:publish>
+			</otherwise>
+		</choice>
+	</flow>
+	<flow name="procesar-cliente" doc:id="fa2473b6-f020-4026-93bf-7bebdb92c187" >
+		<jms:listener doc:name="Procesar documentos" doc:id="3069ae5c-b3de-4f10-ae0d-8ef85493975d" config-ref="JMS_Config" destination="unir.tfm.documents.test" numberOfConsumers="1">
+			<jms:consumer-type >
+				<jms:queue-consumer />
+			</jms:consumer-type>
+		</jms:listener>
+		<ee:transform doc:name="Transform Message" doc:id="b6790995-8922-4722-94e3-62408c4acd2a" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/xml
+---
+read(payload, 'application/xml')]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="2ddd0c43-856c-4107-a0b9-29bb425c1124" message="#[payload.factura]"/>
+		  <db:insert doc:name="InsertClient" doc:id="7a7495e5-5315-43c2-962b-d185e9c85979" config-ref="Database_Config">
+			<db:sql ><![CDATA[  INSERT INTO clientes(codigo_cliente, nombre, direccion, tipo_identificacion)
+        VALUES (:codigo_cliente, :nombre, :direccion, :tipo_identificacion)]]></db:sql>
+			<db:input-parameters ><![CDATA[#[output application/java
+---
+{
+	codigo_cliente: payload.factura.infoFactura.identificacionComprador as String,
+	nombre: payload.factura.infoFactura.razonSocialComprador,
+	direccion: payload.factura.infoFactura.direccionComprador,
+	tipo_identificacion: payload.factura.infoFactura.tipoIdentificacionComprador
+}]]]></db:input-parameters>
+		</db:insert>
+	</flow>
+<flow name="procesar-productos" doc:id="13a7b4c1-7f66-47f4-9567-ec0e89248934" >
+		<jms:listener doc:name="Procesar documentos" doc:id="dcf2bbb0-cc0d-4b50-946f-9a463a45724d" config-ref="JMS_Config" destination="unir.tfm.documents.productos" numberOfConsumers="1">
+			<jms:consumer-type >
+				<jms:queue-consumer />
+			</jms:consumer-type>
+		</jms:listener>
+		<ee:transform doc:name="Transform Message" doc:id="3562e0c0-733f-4055-b5d2-e947fe2d33be" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/xml
+---
+read(payload, 'application/xml')]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<set-payload value="#[%dw 2.0&#10;output application/json&#10;---&#10;payload.factura.detalles.*detalle map{&#10;	codigo_producto: $.codigoPrincipal,&#10;	descripcion: $.descripcion,&#10;	codigo_auxiliar: $.codigoAuxiliar,&#10;	cantidad: $.cantidad,&#10;	precio_unitario: $.precioUnitario,&#10;	precio_sin_impuesto: $.precioTotalSinImpuesto&#10;}]" doc:name="Set Payload" doc:id="e702f4f0-ba48-409c-aadc-e76f9376018c" />
+		<logger level="INFO" doc:name="Logger" doc:id="21dc2b65-e637-4a69-afc0-9596cccf9ed8" message="#[payload.factura]"/>
+		<db:bulk-insert doc:name="Bulk insert" doc:id="86829eca-d1c1-4ca1-b1b9-ebff38d06298" config-ref="Database_Config">
+			<db:sql ><![CDATA[INSERT INTO public.productos(
+	codigo_producto, descripcion, codigo_auxiliar, cantidad, precio_unitario, precio_sin_impuesto)
+	VALUES (:codigo_producto, :descripcion, :codigo_auxiliar, :cantidad, :precio_unitario, :precio_sin_impuesto);]]></db:sql>
+		</db:bulk-insert>
+	
+</flow>
+
+</mule>

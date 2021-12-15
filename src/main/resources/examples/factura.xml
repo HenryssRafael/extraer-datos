@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<factura id="comprobante" version="1.1.0">
+  <infoTributaria>
+    <ambiente>2</ambiente>
+    <tipoEmision>1</tipoEmision>
+    <razonSocial>INSUMOS PROFESIONALES INSUPROF CIA LTDA.</razonSocial>
+    <nombreComercial>ALMACENES MONTERO</nombreComercial>
+    <ruc>1792144566001</ruc>
+    <claveAcceso>1012202101179214456600120133010000430820004308216</claveAcceso>
+    <codDoc>01</codDoc>
+    <estab>013</estab>
+    <ptoEmi>301</ptoEmi>
+    <secuencial>000043082</secuencial>
+    <dirMatriz>AV. 6 DE DICIEMBRE N37-224 Y GONZALO SERRANO</dirMatriz>
+  </infoTributaria>
+  <infoFactura>
+    <fechaEmision>10/12/2021</fechaEmision>
+    <dirEstablecimiento>10 DE AGOSTO 2417 Y LARREA</dirEstablecimiento>
+    <contribuyenteEspecial>826</contribuyenteEspecial>
+    <obligadoContabilidad>SI</obligadoContabilidad>
+    <tipoIdentificacionComprador>05</tipoIdentificacionComprador>
+    <razonSocialComprador>BARAHONA VIVAR LIGIA ELENA</razonSocialComprador>
+    <identificacionComprador>0604187484</identificacionComprador>
+    <direccionComprador>CIUDADELA JOSE MARTIN</direccionComprador>
+    <totalSinImpuestos>16.45</totalSinImpuestos>
+    <totalDescuento>0.00</totalDescuento>
+    <totalConImpuestos>
+      <totalImpuesto>
+        <codigo>2</codigo>
+        <codigoPorcentaje>2</codigoPorcentaje>
+        <descuentoAdicional>0.00</descuentoAdicional>
+        <baseImponible>16.45</baseImponible>
+        <tarifa>12</tarifa>
+        <valor>1.97</valor>
+      </totalImpuesto>
+    </totalConImpuestos>
+    <propina>0.00</propina>
+    <importeTotal>18.42</importeTotal>
+    <moneda>DOLAR</moneda>
+    <pagos>
+      <pago>
+        <formaPago>01</formaPago>
+        <total>18.42</total>
+        <plazo>0</plazo>
+        <unidadTiempo>Dias</unidadTiempo>
+      </pago>
+    </pagos>
+  </infoFactura>
+  <detalles>
+    <detalle>
+      <codigoPrincipal>BEL0504040007011</codigoPrincipal>
+      <codigoAuxiliar>7702433292665</codigoAuxiliar>
+      <descripcion>VOGUE POLVO COMPACTO NATURAL ACEITUNA</descripcion>
+      <cantidad>1</cantidad>
+      <precioUnitario>3.381</precioUnitario>
+      <descuento>0.00</descuento>
+      <precioTotalSinImpuesto>3.38</precioTotalSinImpuesto>
+      <impuestos>
+        <impuesto>
+          <codigo>2</codigo>
+          <codigoPorcentaje>2</codigoPorcentaje>
+          <tarifa>12</tarifa>
+          <baseImponible>3.38</baseImponible>
+          <valor>0.40</valor>
+        </impuesto>
+      </impuestos>
+    </detalle>
+    <detalle>
+      <codigoPrincipal>BEL0502030002871</codigoPrincipal>
+      <codigoAuxiliar>7702433229234</codigoAuxiliar>
+      <descripcion>VOGUE LABIAL ORIG LOOK CANELA</descripcion>
+      <cantidad>1</cantidad>
+      <precioUnitario>1.900</precioUnitario>
+      <descuento>0.00</descuento>
+      <precioTotalSinImpuesto>1.90</precioTotalSinImpuesto>
+      <impuestos>
+        <impuesto>
+          <codigo>2</codigo>
+          <codigoPorcentaje>2</codigoPorcentaje>
+          <tarifa>12</tarifa>
+          <baseImponible>1.90</baseImponible>
+          <valor>0.23</valor>
+        </impuesto>
+      </impuestos>
+    </detalle>
+    <detalle>
+      <codigoPrincipal>BEL0503030013452</codigoPrincipal>
+      <codigoAuxiliar>7702433228879</codigoAuxiliar>
+      <descripcion>VOGUE MASCARA PESTAÃ‘INA EFECTO TOTAL 6 NEGRO</descripcion>
+      <cantidad>1</cantidad>
+      <precioUnitario>5.343</precioUnitario>
+      <descuento>0.00</descuento>
+      <precioTotalSinImpuesto>5.34</precioTotalSinImpuesto>
+      <impuestos>
+        <impuesto>
+          <codigo>2</codigo>
+          <codigoPorcentaje>2</codigoPorcentaje>
+          <tarifa>12</tarifa>
+          <baseImponible>5.34</baseImponible>
+          <valor>0.64</valor>
+        </impuesto>
+      </impuestos>
+    </detalle>
+    <detalle>
+      <codigoPrincipal>BEL0503010005489</codigoPrincipal>
+      <codigoAuxiliar>7509552800968</codigoAuxiliar>
+      <descripcion>VOGUE DELINEADOR LIQUIDO PARA OJOS PUNTA PLUMON NEGRO</descripcion>
+      <cantidad>1</cantidad>
+      <precioUnitario>5.829</precioUnitario>
+      <descuento>0.00</descuento>
+      <precioTotalSinImpuesto>5.83</precioTotalSinImpuesto>
+      <impuestos>
+        <impuesto>
+          <codigo>2</codigo>
+          <codigoPorcentaje>2</codigoPorcentaje>
+          <tarifa>12</tarifa>
+          <baseImponible>5.83</baseImponible>
+          <valor>0.70</valor>
+        </impuesto>
+      </impuestos>
+    </detalle>
+  </detalles>
+  <infoAdicional>
+    <campoAdicional nombre="Idocumento">2364922</campoAdicional>
+    <campoAdicional nombre="ObjType">13</campoAdicional>
+  </infoAdicional>
+</factura>
